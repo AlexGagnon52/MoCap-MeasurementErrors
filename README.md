@@ -12,9 +12,7 @@ filter. Known errors are added to real marker data, and their effect on a
 simple foot angle is measured. The notebook ends with an error budget that
 compares all the sources.
 
-<img width="540"
-     alt="Foot angle during walking, with and without 1 mm of marker noise"
-     src="figures/foot_angle_noise.png" />
+![Foot angle during walking, with and without 1 mm of marker noise](figures/foot_angle_noise.png)
 
 ## What's Included
 
