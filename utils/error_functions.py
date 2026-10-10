@@ -6,7 +6,7 @@ from scipy.signal import butter, filtfilt
 
 
 def load_foot(path: str) -> tuple:
-    '''Heel and toe markers (mm) and the time (s) of a c3d file.
+    """Heel and toe markers (mm) and the time (s) of a c3d file.
 
     Parameters
     ----------
@@ -18,7 +18,7 @@ def load_foot(path: str) -> tuple:
     tuple
         toe_y, toe_z, heel_y, heel_z, time. y is the walking direction
         and z is the height.
-    '''
+    """
     c3d = ezc3d.c3d(path)
     names = c3d['parameters']['POINT']['LABELS']['value']
     points = c3d['data']['points']          # points[axis, marker, frame]
@@ -29,7 +29,7 @@ def load_foot(path: str) -> tuple:
 
 
 def short_markers(path: str) -> dict:
-    '''Markers that are valid in only some frames of a c3d file.
+    """Markers that are valid in only some frames of a c3d file.
 
     Parameters
     ----------
@@ -41,7 +41,7 @@ def short_markers(path: str) -> dict:
     dict
         Marker name and its number of valid frames. A negative residual
         means that the marker was not reconstructed.
-    '''
+    """
     c3d = ezc3d.c3d(path)
     names = c3d['parameters']['POINT']['LABELS']['value']
     residuals = c3d['data']['meta_points']['residuals'][0]
@@ -55,7 +55,7 @@ def short_markers(path: str) -> dict:
 
 def foot_angle(ty: np.ndarray, tz: np.ndarray,
                hy: np.ndarray, hz: np.ndarray) -> np.ndarray:
-    '''Angle of the line from the heel marker to the toe marker.
+    """Angle of the line from the heel marker to the toe marker.
 
     Parameters
     ----------
@@ -66,12 +66,12 @@ def foot_angle(ty: np.ndarray, tz: np.ndarray,
     -------
     np.ndarray
         Foot angle in degrees (0 = flat foot, positive = toes up).
-    '''
+    """
     return np.degrees(np.arctan2(tz - hz, hy - ty))  # walking towards -y
 
 
 def angle_noise(distance: float, sigma: float) -> float:
-    '''Angle error (degrees) caused by noise: sqrt(2) * sigma / distance.
+    """Angle error (degrees) caused by noise: sqrt(2) * sigma / distance.
 
     Parameters
     ----------
@@ -84,7 +84,7 @@ def angle_noise(distance: float, sigma: float) -> float:
     -------
     float
         Typical angle error in degrees.
-    '''
+    """
     return np.degrees(np.sqrt(2) * sigma / distance)
 
 

@@ -12,9 +12,7 @@ filter. Known errors are added to real marker data, and their effect on a
 simple foot angle is measured. The notebook ends with an error budget that
 compares all the sources.
 
-<img width="540"
-     alt="Foot angle during walking, with and without 1 mm of marker noise"
-     src="figures/foot_angle_noise.png" />
+![Foot angle during walking, with and without 1 mm of marker noise](figures/foot_angle_noise.png)
 
 ## What's Included
 
@@ -35,7 +33,7 @@ compares all the sources.
 Optical motion capture systems estimate the 3D position of reflective markers
 placed on the skin using several calibrated infrared cameras. Joint angles are
 then calculated from the positions of these markers, so any error in the marker
-positions can travel to the final angles. This is most critical for small
+positions can propagate to the final angles. This is most critical for small
 segments, such as those of multi-segment foot models like the Oxford Foot Model
 (OFM), where markers can be only a few millimeters apart.
 
