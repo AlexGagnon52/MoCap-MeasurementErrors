@@ -6,7 +6,7 @@ from scipy.signal import butter, filtfilt
 
 
 def load_foot(path: str) -> tuple:
-    '''Heel and toe markers (mm) and the time (s) of a c3d file.
+    """Heel and toe markers (mm) and the time (s) of a c3d file.
 
     Parameters
     ----------
@@ -18,7 +18,7 @@ def load_foot(path: str) -> tuple:
     tuple
         toe_y, toe_z, heel_y, heel_z, time. y is the walking direction
         and z is the height.
-    '''
+    """
     c3d = ezc3d.c3d(path)
     names = c3d['parameters']['POINT']['LABELS']['value']
     points = c3d['data']['points']          # points[axis, marker, frame]
@@ -29,7 +29,7 @@ def load_foot(path: str) -> tuple:
 
 
 def short_markers(path: str) -> dict:
-    '''Markers that are valid in only some frames of a c3d file.
+    """Markers that are valid in only some frames of a c3d file.
 
     Parameters
     ----------
@@ -41,7 +41,7 @@ def short_markers(path: str) -> dict:
     dict
         Marker name and its number of valid frames. A negative residual
         means that the marker was not reconstructed.
-    '''
+    """
     c3d = ezc3d.c3d(path)
     names = c3d['parameters']['POINT']['LABELS']['value']
     residuals = c3d['data']['meta_points']['residuals'][0]
@@ -53,9 +53,14 @@ def short_markers(path: str) -> dict:
     return short
 
 
+def find_jumps(values: np.ndarray, limit: float) -> list:
+    # Frames where a curve moves more than `limit` from the frame before.
+    return (np.where(abs(np.diff(values)) > limit)[0] + 1).tolist()
+
+
 def foot_angle(ty: np.ndarray, tz: np.ndarray,
                hy: np.ndarray, hz: np.ndarray) -> np.ndarray:
-    '''Angle of the line from the heel marker to the toe marker.
+    """Angle of the line from the heel marker to the toe marker.
 
     Parameters
     ----------
@@ -66,12 +71,12 @@ def foot_angle(ty: np.ndarray, tz: np.ndarray,
     -------
     np.ndarray
         Foot angle in degrees (0 = flat foot, positive = toes up).
-    '''
+    """
     return np.degrees(np.arctan2(tz - hz, hy - ty))  # walking towards -y
 
 
 def angle_noise(distance: float, sigma: float) -> float:
-    '''Angle error (degrees) caused by noise: sqrt(2) * sigma / distance.
+    """Angle error (degrees) caused by noise: sqrt(2) * sigma / distance.
 
     Parameters
     ----------
@@ -84,7 +89,7 @@ def angle_noise(distance: float, sigma: float) -> float:
     -------
     float
         Typical angle error in degrees.
-    '''
+    """
     return np.degrees(np.sqrt(2) * sigma / distance)
 
 
@@ -144,6 +149,15 @@ def average_error(new: np.ndarray, true: np.ndarray) -> float:
     return abs(new - true).mean()
 
 
+def spectrum(values: np.ndarray, rate: float = 100) -> tuple:
+    # Amplitude (mm) of each frequency (Hz) in a curve, using the FFT.
+    # The window fades both ends to zero, so jump between
+    # first and last frame is not read as high frequencies.
+    window = np.hanning(len(values))
+    sizes = abs(np.fft.rfft((values - values.mean()) * window))
+    return np.fft.rfftfreq(len(values), 1 / rate), 2 * sizes / window.sum()
+
+
 def plot_angles(time: np.ndarray, true_angle: np.ndarray,
                 new_angle: np.ndarray) -> None:
     # Plot an angle with an error next to the true angle
@@ -163,5 +177,16 @@ def plot_gap(time: np.ndarray, true: np.ndarray, linear: np.ndarray,
     plt.plot(time, spline, label='Spline')
     plt.xlabel('Time (s)')
     plt.ylabel('Toe height (mm)')
+    plt.legend()
+    plt.show()
+
+
+def plot_spectrum(freq: np.ndarray, true_size: np.ndarray,
+                  noisy_size: np.ndarray) -> None:
+    # Plot the amplitude of each frequency, with and without noise.
+    plt.semilogy(freq, noisy_size, label='With noise')
+    plt.semilogy(freq, true_size, label='True')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Amplitude (mm)')
     plt.legend()
     plt.show()
